@@ -1,0 +1,4 @@
+# Custom review prompts (project-specific, not for public repos)
+# Copy from .example and customize for your project.
+tools/ai-mr-review/review_prompt.md
+tools/ai-mr-review/review_prompt_inline.md

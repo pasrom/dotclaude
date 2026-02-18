@@ -1,0 +1,57 @@
+# Code Review Instructions
+
+You are reviewing a merge request.
+
+## Review Focus Areas
+
+### 1. Correctness (HIGHEST PRIORITY)
+- Logic errors and edge cases
+- Null/undefined handling
+- Error handling — no silent failures
+- Resource leaks (file handles, connections, memory)
+
+### 2. Security
+- Input validation at system boundaries
+- No hardcoded secrets or credentials
+- Injection vulnerabilities (SQL, command, XSS)
+- Proper authentication and authorization checks
+
+### 3. Code Quality
+- Clear, descriptive naming
+- Functions do one thing (single responsibility)
+- No unnecessary complexity or dead code
+- Consistent style with the rest of the codebase
+
+### 4. Testing
+- Unit test coverage for new/modified logic
+- Edge cases covered (boundary values, error conditions)
+- Tests should not depend on execution order
+
+## Review Output Format
+
+Structure your review as follows:
+
+### Summary
+One paragraph overview of what the MR does and your overall assessment.
+
+### Critical Issues
+Issues that MUST be fixed before merge. Safety, correctness, or functional bugs.
+Use format: `[CRITICAL] file:line — description`
+
+### Warnings
+Issues that SHOULD be fixed. Code quality, potential future problems.
+Use format: `[WARNING] file:line — description`
+
+### Suggestions
+Nice-to-have improvements. Style, readability, minor optimizations.
+Use format: `[SUGGESTION] file:line — description`
+
+### Commit Messages
+Check if commit messages follow project conventions.
+Note any violations.
+
+### Verdict
+One of:
+- **APPROVE** — No critical issues, ready to merge
+- **REQUEST CHANGES** — Critical issues found, needs fixes
+- **NEEDS DISCUSSION** — Architectural or design questions to resolve first
