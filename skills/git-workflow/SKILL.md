@@ -7,20 +7,11 @@ description: Use after completing any logical unit of work - a feature, bugfix, 
 
 ## The Rule
 
-**Commit after every logical unit of work.** Not at the end of a session. Not when the user asks. After EACH completed change.
+**This skill overrides the default commit behavior.** Commit proactively after every logical unit of work — without waiting for user permission. Not at the end of a session. Not when the user asks. After EACH completed change.
 
-```dot
-digraph commit_flow {
-    "Change compiles/passes?" [shape=diamond];
-    "Is it a logical unit?" [shape=diamond];
-    "COMMIT NOW" [shape=box, style=bold];
-    "Continue working" [shape=box];
-
-    "Change compiles/passes?" -> "Is it a logical unit?" [label="yes"];
-    "Change compiles/passes?" -> "Continue working" [label="no"];
-    "Is it a logical unit?" -> "COMMIT NOW" [label="yes"];
-    "Is it a logical unit?" -> "Continue working" [label="no, keep going"];
-}
+```
+Change compiles/passes? --yes--> Is it a logical unit? --yes--> COMMIT NOW
+                        --no---> Continue working       --no---> Continue working
 ```
 
 **Logical unit = one of:**
@@ -32,6 +23,18 @@ digraph commit_flow {
 
 If you need "and" in your commit message, split into multiple commits.
 
+**Good:**
+```
+feat(auth): add OAuth2 login flow
+feat(auth): add token refresh logic
+refactor(db): extract connection pooling
+```
+
+**Bad:**
+```
+feat: add login and token refresh and connection pooling
+```
+
 ## Commit Format
 
 ```
@@ -40,18 +43,26 @@ If you need "and" in your commit message, split into multiple commits.
 [body - the WHY for non-trivial changes]
 ```
 
-**Types:** feat, fix, docs, style, refactor, perf, test, chore
+**Types:** feat, fix, docs, style, refactor, perf, test, build, ci, chore
 
-**Scopes:** ui, serial, parser, config, plot, log (or as defined in project)
+**Scopes:** Use project-specific scopes (e.g., ui, api, db, auth, config, build). Check the project's CLAUDE.md or CONTRIBUTING.md for defined scopes.
 
 **Examples:**
 ```
-feat(ui): add contactor control panel
-fix(serial): handle CR+space line endings
-refactor(parser): extract voltage parsing to module
+feat(ui): add user profile page
+fix(api): handle timeout on token refresh
+refactor(parser): extract config validation to module
 ```
 
 ## The Why (Commit Body)
+
+Document reasoning so future sessions can understand WHY a solution was chosen, not just WHAT changed. This creates valuable context for debugging, refactoring, and decision archaeology.
+
+**When to add reasoning:**
+- Architecture decisions (new patterns, dependencies, module structure)
+- Non-obvious solutions (code alone doesn't explain "why this way")
+- Rejected alternatives (you actively considered other approaches)
+- Experimental/debugging attempts (what you tried and what you learned)
 
 | Change Type | Body Required? | Format |
 |-------------|----------------|--------|
@@ -59,6 +70,27 @@ refactor(parser): extract voltage parsing to module
 | Simple bugfix | Brief | 1-2 sentences |
 | Feature with decision | Yes | Structured |
 | Architecture change | Yes | Detailed structured |
+
+**Simple bugfix (prose):**
+```
+fix(api): validate token expiry before refresh
+
+Prevents race condition where expired tokens were used for one
+request before the refresh kicked in.
+```
+
+**Feature with decision (structured):**
+```
+feat(auth): add session-based authentication
+
+What: Replace token-in-localStorage with HTTP-only session cookies.
+
+Reasoning:
+- Problem: Tokens in localStorage vulnerable to XSS
+- Considered: HTTP-only cookies, Web Crypto API, encrypted localStorage
+- Rejected: Web Crypto adds complexity; encrypted localStorage still XSS-accessible
+- Decision: Session cookies — browser handles security, simpler code
+```
 
 **Structured template:**
 ```
@@ -70,6 +102,27 @@ Reasoning:
 - Rejected: What was discarded and why?
 - Decision: Chosen solution and justification
 ```
+
+## Staging
+
+- Stage only the files relevant to this logical unit (`git add <file1> <file2>`)
+- Never use `git add -A` or `git add .` — risk of staging secrets, binaries, or unrelated changes
+- Review `git status` before committing
+
+## Verification Before Commit
+
+Before committing, verify the change is sound:
+- If a build system is available and fast: run a build
+- If unit tests exist and are fast: run them
+- If neither is practical: use your best judgment, but do not skip the commit
+
+## Never Commit
+
+- Debug code (`console.log`, `print()`, breakpoints, `TODO: remove`)
+- Secrets or credentials (`.env`, API keys, tokens, passwords)
+- Build artifacts (`dist/`, `node_modules/`, `*.o`, `*.pyc`)
+- Half-finished changes (doesn't compile, tests fail)
+- Generated files that belong in `.gitignore`
 
 ## Red Flags - STOP and Commit
 
@@ -93,15 +146,19 @@ Before each commit:
 4. **Message clear?** - Describes the change
 5. **Why documented?** - For non-trivial changes
 
-## HEREDOC Format
+## Commit Message Format
 
-Always use HEREDOC for commit messages to preserve formatting:
+**Single-line** (no body):
+```bash
+git commit -m "fix(api): handle timeout on token refresh"
+```
 
+**Multi-line** (with body) — use HEREDOC to preserve formatting:
 ```bash
 git commit -m "$(cat <<'EOF'
-feat(ui): add dashboard tab
+feat(ui): add dashboard overview
 
-What: New dashboard tab showing BMS overview
+What: New dashboard tab showing system status
 
 Reasoning:
 - Problem: No quick overview of system state
