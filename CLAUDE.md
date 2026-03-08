@@ -4,7 +4,7 @@ Personal Claude Code configuration repo — skills, tools, and workflows.
 
 ## Structure
 
-- `skills/` — Claude Code skills (SKILL.md files), symlinked to `~/.claude/skills/` via `install.sh`
+- `skills/` — Claude Code skills (SKILL.md files), symlinked to `~/.claude/skills/` via `install.sh`. Includes git-workflow and km-* knowledge management suite.
 - `tools/` — Standalone scripts and utilities
 - `install.sh` — Sets up symlinks and shell aliases (`--force` to reinstall)
 
