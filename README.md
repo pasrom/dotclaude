@@ -55,7 +55,23 @@ A suite of 11 skills for AI-driven knowledge management. Works in **any Git repo
 | `/km-archive` | Mark documents as superseded or obsolete |
 | `/km-help` | Show all available KM skills with examples |
 
-All skills are installed automatically by `./install.sh` (symlinks to `~/.claude/skills/`).
+**Install:**
+
+```bash
+# macOS / Linux / WSL
+git clone https://github.com/pasrom/dotclaude.git
+cd dotclaude
+./install.sh
+```
+
+```powershell
+# Windows (PowerShell)
+git clone https://github.com/pasrom/dotclaude.git
+cd dotclaude
+.\install.ps1
+```
+
+Both scripts create links from `~/.claude/skills/` to this repo. Use `-Force` to reinstall.
 
 ## Tools
 
@@ -71,11 +87,7 @@ AI-powered merge request code review for GitLab using Claude Code CLI. Reviews y
 **Quick Start:**
 
 ```bash
-git clone https://github.com/pasrom/dotclaude.git
-cd dotclaude
-./install.sh   # Symlinks skills + adds shell alias
-
-# Then from any GitLab repo:
+# After install (see above), from any GitLab repo:
 review --mr 42
 ```
 
