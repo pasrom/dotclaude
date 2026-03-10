@@ -25,7 +25,7 @@ Present this overview:
 ### Read
 | Skill | Purpose | Example |
 |-------|---------|---------|
-| `/km-query` | Search and summarize knowledge | `/km-query What do we know about thermal management?` |
+| `/km-query` | Search and summarize knowledge (supports `@brain`) | `/km-query What do we know about thermal management?` |
 | `/km-weekly-summary` | Changes from the past week | `/km-weekly-summary` or `/km-weekly-summary last 2 weeks` |
 
 ### Update
@@ -44,7 +44,17 @@ Present this overview:
 |-------|---------|---------|
 | `/km-review` | Submit document for review via PR/MR | `/km-review profinet-evaluation.md` |
 
+### Brains
+| Skill | Purpose | Example |
+|-------|---------|---------|
+| `/km-brain add` | Link another knowledge repo as Git submodule | `/km-brain add https://gitlab.com/org/team-brain.git` |
+| `/km-brain list` | Show all linked brains with commit hashes | `/km-brain list` |
+| `/km-brain remove` | Unlink a brain | `/km-brain remove team-brain` |
+
 ### Tips
+- Use `@brain-name` in queries to search a specific brain: `/km-query @mko What's the status of thermal management?`
+- Use `@all` to search all linked brains at once: `/km-query @all Zephyr RTOS`
+- Brains auto-update when queried (if older than 15 minutes)
 - You don't have to use slash commands — just describe what you need in natural language
 - "Save this", "remember this", "file this" work the same as `/km-ingest`
 - "What do we know about X?" works the same as `/km-query`
