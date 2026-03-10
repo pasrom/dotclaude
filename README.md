@@ -10,7 +10,7 @@ dotclaude/
     git-workflow/        # Atomic commits with Conventional Commits
     km-init/             # Bootstrap a new knowledge repo
     km-ingest/           # Save content with auto-classification
-    km-query/            # Semantic search across knowledge repo
+    km-query/            # Semantic search across knowledge repo (supports @brain)
     km-decision/         # Create Architecture Decision Records
     km-update/           # Modify existing documents
     km-transcript/       # Process meeting transcripts
@@ -18,6 +18,7 @@ dotclaude/
     km-review/           # Submit documents for review via PR/MR
     km-weekly-summary/   # Weekly changelog from git history
     km-archive/          # Document lifecycle management
+    km-brain/            # Manage cross-repo knowledge brains
     km-help/             # List all KM skills
   tools/                 # Standalone scripts and utilities
     ai-mr-review/        # AI-powered GitLab MR reviews using Claude
@@ -53,7 +54,25 @@ A suite of 11 skills for AI-driven knowledge management. Works in **any Git repo
 | `/km-review` | Submit document for review via PR/MR |
 | `/km-weekly-summary` | Generate changelog from git history |
 | `/km-archive` | Mark documents as superseded or obsolete |
+| `/km-brain` | Manage cross-repo knowledge brains (add/list/remove) |
 | `/km-help` | Show all available KM skills with examples |
+
+### Cross-Repo Brains
+
+Link other knowledge repos as Git submodules to search across them. Each brain is a separate Git repo with its own `CONVENTIONS.md` and access permissions — every team member controls who can read their brain.
+
+```bash
+# In your knowledge repo:
+/km-brain add https://gitlab.com/org/team-brain.git
+/km-brain add https://gitlab.com/org/mko-brain.git mko
+/km-brain list
+
+# Query across brains:
+/km-query @mko What's the status of thermal management?
+/km-query @all Zephyr RTOS
+```
+
+Brains auto-update when queried (if stale >15 min). Every query result includes the brain name and pinned commit hash for full traceability.
 
 **Install:**
 
