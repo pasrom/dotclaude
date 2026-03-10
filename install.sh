@@ -7,7 +7,12 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 CLAUDE_DIR="$HOME/.claude"
 FORCE=false
-[[ "${1:-}" == "--force" || "${1:-}" == "-f" ]] && FORCE=true
+for arg in "$@"; do
+    case "$arg" in
+        --force|-f) FORCE=true ;;
+        --dir=*)    CLAUDE_DIR="${arg#--dir=}" ;;
+    esac
+done
 
 # -- Colors ------------------------------------------------------------
 GREEN='\033[0;32m'
