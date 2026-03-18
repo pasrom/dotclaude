@@ -96,6 +96,25 @@ else
     ok "added $SCRIPT_DIR to permissions.additionalDirectories"
 fi
 
+# -- Create/update global CLAUDE.md -----------------------------------
+echo ""
+echo "Updating global CLAUDE.md..."
+
+CLAUDE_MD="$CLAUDE_DIR/CLAUDE.md"
+MARKER="# dotclaude"
+
+if [ -f "$CLAUDE_MD" ] && grep -qF "$MARKER" "$CLAUDE_MD"; then
+    skip "dotclaude section in CLAUDE.md"
+else
+    cat >> "$CLAUDE_MD" << EOF
+
+# dotclaude
+Skills and tools are installed from: $SCRIPT_DIR
+Use /km-help to see all available knowledge management skills.
+EOF
+    ok "dotclaude section added to CLAUDE.md"
+fi
+
 # -- Check prerequisites ----------------------------------------------
 echo ""
 echo "Checking prerequisites..."
