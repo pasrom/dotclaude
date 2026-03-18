@@ -73,6 +73,29 @@ else
     ok "review alias added to $RC_FILE"
 fi
 
+# -- Register additionalDirectories in settings.json ------------------
+echo ""
+echo "Registering additionalDirectories..."
+
+SETTINGS_FILE="$CLAUDE_DIR/settings.json"
+
+if ! command -v jq &>/dev/null; then
+    echo -e "  ${YELLOW}✗${NC} jq not found — skipping additionalDirectories update"
+else
+    # Create minimal settings.json if missing
+    if [ ! -f "$SETTINGS_FILE" ]; then
+        echo '{"permissions":{}}' > "$SETTINGS_FILE"
+    fi
+
+    UPDATED=$(jq \
+        --arg dir "$SCRIPT_DIR" \
+        '.permissions.additionalDirectories = ((.permissions.additionalDirectories // []) + [$dir] | unique)' \
+        "$SETTINGS_FILE")
+
+    echo "$UPDATED" > "$SETTINGS_FILE"
+    ok "added $SCRIPT_DIR to permissions.additionalDirectories"
+fi
+
 # -- Check prerequisites ----------------------------------------------
 echo ""
 echo "Checking prerequisites..."
