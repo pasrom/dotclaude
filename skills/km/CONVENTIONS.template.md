@@ -84,6 +84,7 @@ Each main folder should have an `_index.md` with:
 - Use relative markdown links: `[Title](../path/to/file.md)`
 - Prefer `related:` frontmatter field for machine-readable links
 - Never duplicate content — link instead
+- Obsidian: Run `/km obsidian init` to set up vault config for viewing in Obsidian
 
 ## Obsolescence
 
