@@ -77,22 +77,24 @@ def post_inline_comment(mr_iid: str, version: dict, comment: dict) -> bool:
     label = severity.upper()
     body = f"{emoji} **[{label}]** {comment['body']}"
 
-    payload = json.dumps({
-        "body": body,
-        "position": {
-            "base_sha": version["base_commit_sha"],
-            "start_sha": version["start_commit_sha"],
-            "head_sha": version["head_commit_sha"],
-            "position_type": "text",
-            "new_path": comment["file"],
-            "old_path": comment["file"],
-            "new_line": comment["line"],
-        },
-    })
+    position = {
+        "base_sha": version["base_commit_sha"],
+        "start_sha": version["start_commit_sha"],
+        "head_sha": version["head_commit_sha"],
+        "position_type": "text",
+        "new_path": comment["file"],
+        "old_path": comment["file"],
+        "new_line": comment["line"],
+    }
+    # GitLab requires old_line for unchanged context lines (lines not added in the
+    # MR but present in both old and new file). Pass it through when supplied.
+    if "old_line" in comment:
+        position["old_line"] = comment["old_line"]
+    payload = json.dumps({"body": body, "position": position})
 
     result = subprocess.run(
         ["glab", "api", f"projects/:id/merge_requests/{mr_iid}/discussions",
-         "-X", "POST", "--input", "-"],
+         "-X", "POST", "-H", "Content-Type: application/json", "--input", "-"],
         input=payload, capture_output=True, text=True,
     )
 
