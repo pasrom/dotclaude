@@ -46,7 +46,7 @@ Fix what's spec-relevant; document (don't silently leave) what you couldn't reco
 
 ## 3. (Optional) Add to a datasheet library repo
 
-If adding to `datasheet-library` (or any repo with that convention):
+If adding to a shared datasheet-library repo with this convention:
 
 - One directory per component: `<component>/<component>.pdf`, `<component>.md`, `<component>_media/`.
 - Rename the source PDF to the clean component name.
@@ -57,5 +57,5 @@ If adding to `datasheet-library` (or any repo with that convention):
 
 ## Notes
 
-- Conversion settings (200 DPI, relative paths) match the `datasheet-library` convention so output drops straight in.
+- Conversion settings (200 DPI, relative paths) match the common datasheet-library convention so output drops straight in.
 - The glyph map is the validated Adobe-Symbol subset; equation bracket-segments (`U+F0E6/F6/E8/F8`) are intentionally left (multi-line glyphs not safely mappable).
