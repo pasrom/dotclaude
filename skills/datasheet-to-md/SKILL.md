@@ -24,7 +24,7 @@ python3 <skill-dir>/convert_datasheet.py <pdf_path> [--name NAME] [--out-dir DIR
 - Flags: `--dpi N`, `--no-glyph-fix`, `--render-pages 41,77` (see below).
 
 The script handles two non-obvious pymupdf failure modes, plus verification:
-1. **Symbol-font glyphs as invisible code points.** pymupdf extracts Adobe Symbol glyphs as Private-Use chars (`U+F0xx`), so `Ω`, `µ`, `°`, `≥`, `×`, `θ`, `Δ`/`Σ`, `©` look *missing* — e.g. a `kΩ` cell renders as bare `k`, `120 mΩ` as `120 m`. It remaps them to real Unicode and strips Symbol leader-dots (guarded so real decimal points are never deleted).
+1. **Symbol-font glyphs as invisible code points.** pymupdf extracts Adobe Symbol glyphs as Private-Use chars (`U+F0xx`), so `Ω`, `µ`, `°`, `≥`, `×`, `θ`, `Δ`/`Σ`, `©` look *missing* — e.g. a `kΩ` cell renders as bare `k`, `120 mΩ` as `120 m`. It remaps them to real Unicode, strips Symbol leader-dots (guarded so real decimal points are never deleted), and removes `~~...~~` OCR strikethrough noise — deleting short gibberish tokens but keeping genuinely struck text (bold/multi-word/long content, e.g. a struck-through section header).
 2. **Verification.** Reports broken image refs (must be 0) and residual `PUA`/`U+FFFD` (acceptable only inside equation bracket-segments and fenced figure picture-text).
 
 Read the script's printed report. **0 broken refs is required.**

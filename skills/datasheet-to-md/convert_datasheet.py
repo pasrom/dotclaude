@@ -69,6 +69,22 @@ def fix_glyphs(md: str):
         if not risky:
             counts["leader-dots->del"] = md.count(lead)
             md = md.replace(lead, "")
+    # ~~...~~ strikethrough in a datasheet is an OCR artifact, but it wraps two
+    # different things: short gibberish tokens (delete) and, sometimes, real
+    # text/headers (keep the text, drop only the markers). Never delete content
+    # that is bold, multi-word, or long.
+    handled = [0]
+
+    def _destrike(m):
+        content = m.group(1)
+        handled[0] += 1
+        if "**" in content or " " in content or len(content) > 15:
+            return content  # real content -> unstrike
+        return ""           # short bare token -> OCR garbage -> drop
+    md = re.sub(r"~~(.*?)~~", _destrike, md)
+    if handled[0]:
+        md = re.sub(r"(?:<br>\s*){2,}", "<br>", md)  # collapse <br> runs left behind
+        counts["strikethrough-cleaned"] = handled[0]
     return md, counts
 
 
