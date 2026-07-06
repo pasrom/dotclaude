@@ -31,6 +31,7 @@ DRY_RUN=false
 BASE_BRANCH="main"
 MR_IID=""
 LIST_MRS=false
+MR_MODE=false   # true when reviewing a remote MR diff (vs. the local branch diff)
 
 while [[ $# -gt 0 ]]; do
     case "$1" in
@@ -98,13 +99,25 @@ if [ -n "$MR_IID" ]; then
         exit 1
     fi
 
+    MR_MODE=true
     echo "Fetching MR !$MR_IID from GitLab ..."
 
     MR_INFO="$(glab mr view "$MR_IID" -F json)"
-    MR_TITLE="$(echo "$MR_INFO" | python3 -c "import sys,json; print(json.load(sys.stdin)['title'])")"
-    MR_DESC="$(echo "$MR_INFO" | python3 -c "import sys,json; print(json.load(sys.stdin).get('description',''))")"
-    MR_SOURCE="$(echo "$MR_INFO" | python3 -c "import sys,json; print(json.load(sys.stdin)['source_branch'])")"
-    MR_TARGET="$(echo "$MR_INFO" | python3 -c "import sys,json; print(json.load(sys.stdin)['target_branch'])")"
+    # One JSON parse for all four fields: title/source/target are single-line
+    # and read line-by-line; the (possibly multi-line) description comes last
+    # and is read as the remainder.
+    { IFS= read -r MR_TITLE
+      IFS= read -r MR_SOURCE
+      IFS= read -r MR_TARGET
+      MR_DESC="$(cat)"
+    } < <(printf '%s' "$MR_INFO" | python3 -c '
+import sys, json
+d = json.load(sys.stdin)
+print(d["title"])
+print(d["source_branch"])
+print(d["target_branch"])
+print(d.get("description", ""), end="")
+')
 
     DIFF="$(glab mr diff "$MR_IID" --color=never)"
 
@@ -212,6 +225,20 @@ if [ "$INLINE_COMMENTS" = true ]; then
         echo ""
         echo "Warning: No open MR found. Inline comments were NOT posted."
         exit 0
+    fi
+
+    # In local mode the inline line numbers come from the local diff, but the
+    # positions are posted against the MR's remote head. Warn if they diverge.
+    if [ "$MR_MODE" = false ]; then
+        LOCAL_HEAD="$(git rev-parse HEAD)"
+        MR_HEAD="$(glab api "projects/:id/merge_requests/$MR_IID/versions" 2>/dev/null \
+            | python3 -c "import sys,json; v=json.load(sys.stdin); print(v[0]['head_commit_sha'] if v else '')" 2>/dev/null || true)"
+        if [ -n "$MR_HEAD" ] && [ "$LOCAL_HEAD" != "$MR_HEAD" ]; then
+            echo ""
+            echo "Warning: local HEAD (${LOCAL_HEAD:0:8}) differs from MR !$MR_IID head (${MR_HEAD:0:8})."
+            echo "         Inline positions come from your local diff and may be rejected or misplaced."
+            echo "         Push your branch, or re-run with --mr $MR_IID to review the MR's own diff."
+        fi
     fi
 
     echo ""
