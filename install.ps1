@@ -23,7 +23,16 @@ if (-not (Test-Path $SkillsDir)) {
 Get-ChildItem -Path (Join-Path $ScriptDir "skills") -Directory | ForEach-Object {
     $target = Join-Path $SkillsDir $_.Name
     if ($Force -and (Test-Path $target)) {
-        Remove-Item -Path $target -Recurse -Force
+        $existing = Get-Item $target -Force
+        if ($existing.LinkType) {
+            # Junction/symlink: remove only the reparse point. Windows PowerShell
+            # 5.1's `Remove-Item -Recurse` follows a junction and deletes the
+            # linked target's contents — i.e. it would wipe this repo's skill
+            # sources. `rmdir` (like the mklink /J above) unlinks safely.
+            cmd /c rmdir "$target" | Out-Null
+        } else {
+            Remove-Item -Path $target -Recurse -Force
+        }
     }
     if (Test-Path $target) {
         Write-Skip "skills/$($_.Name)"
