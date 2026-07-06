@@ -37,8 +37,14 @@ while [[ $# -gt 0 ]]; do
         --post)      POST_TO_GITLAB=true; shift ;;
         --inline)    INLINE_COMMENTS=true; shift ;;
         --dry-run)   DRY_RUN=true; shift ;;
-        --mr)        MR_IID="$2"; shift 2 ;;
+        --mr)
+            if [ $# -lt 2 ]; then
+                echo "Error: --mr requires a merge request IID (e.g. --mr 42)." >&2
+                exit 1
+            fi
+            MR_IID="$2"; shift 2 ;;
         --list)      LIST_MRS=true; shift ;;
+        --*)         echo "Error: unknown option '$1'." >&2; exit 1 ;;
         *)           BASE_BRANCH="$1"; shift ;;
     esac
 done
@@ -176,7 +182,12 @@ EOF
 fi
 
 # -- Run review --------------------------------------------------------
-REVIEW_OUTPUT="$(echo "$FULL_PROMPT" | claude -p --print 2>&1)"
+# The diff is embedded in the prompt, so the review needs no tools. Disabling
+# them closes the prompt-injection -> file-read/exfil path when reviewing MRs
+# from untrusted authors. No 2>&1: keep claude's stderr (update notices, MCP
+# warnings) out of the text we post to GitLab; it still shows in the terminal.
+REVIEW_OUTPUT="$(echo "$FULL_PROMPT" | claude -p \
+    --disallowedTools "Bash Edit Write Read Glob Grep WebFetch WebSearch NotebookEdit")"
 
 echo ""
 echo "===== REVIEW RESULT ====="
