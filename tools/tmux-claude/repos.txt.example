@@ -1,0 +1,6 @@
+# Repos for tmux-claude (one path per line)
+# ~ and $HOME are expanded automatically
+#
+# ~/git/dotclaude
+# ~/git/my-project
+# $HOME/work/firmware
