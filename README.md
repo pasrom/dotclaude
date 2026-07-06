@@ -55,7 +55,7 @@ cd dotclaude
 Both scripts create links from `~/.claude/skills/` to this repo. Use `-f` to reinstall, `--dir=<path>` for a custom config directory:
 
 ```bash
-./install.sh --dir=~/.claude-work    # Install to alternate Claude config dir
+./install.sh --dir="$HOME/.claude-work"   # Install to alternate Claude config dir
 ```
 
 ## Tools

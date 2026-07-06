@@ -13,6 +13,9 @@ for arg in "$@"; do
         --dir=*)    CLAUDE_DIR="${arg#--dir=}" ;;
     esac
 done
+# The shell does NOT expand ~ inside --dir=~/foo, so do it here — otherwise
+# CLAUDE_DIR stays the literal "~/foo" and mkdir creates a dir named "~".
+CLAUDE_DIR="${CLAUDE_DIR/#\~/$HOME}"
 
 # -- Colors ------------------------------------------------------------
 GREEN='\033[0;32m'
