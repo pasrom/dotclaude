@@ -13,8 +13,9 @@ The JSON input must have the structure:
     ]
 }
 """
+from __future__ import annotations
+
 import json
-import re
 import subprocess
 import sys
 
@@ -27,33 +28,28 @@ SEVERITY_EMOJI = {
 
 
 def extract_json(text: str) -> dict | None:
-    """Extract a JSON object from text that may contain non-JSON content.
+    """Extract the first JSON object containing "summary" from arbitrary text.
 
-    Claude sometimes outputs thinking/reasoning text before the JSON.
-    This function finds the outermost {...} block containing "summary".
+    Claude may wrap the JSON in prose or markdown fences. We scan for each
+    "{" and let the JSON decoder find the exact object span. raw_decode
+    respects string escaping, so stray braces or backticks *inside* comment
+    bodies — e.g. "missing closing } in foo()" or a fenced code snippet —
+    no longer truncate the object or get silently mangled.
     """
-    # Strip markdown code fences
-    text = re.sub(r"```(?:json)?\s*\n?", "", text)
-
-    # Find all top-level JSON objects by matching balanced braces
-    depth = 0
-    start = None
-    for i, ch in enumerate(text):
-        if ch == "{":
-            if depth == 0:
-                start = i
-            depth += 1
-        elif ch == "}":
-            depth -= 1
-            if depth == 0 and start is not None:
-                candidate = text[start : i + 1]
-                try:
-                    obj = json.loads(candidate)
-                    if isinstance(obj, dict) and "summary" in obj:
-                        return obj
-                except json.JSONDecodeError:
-                    continue
-    return None
+    decoder = json.JSONDecoder()
+    idx = 0
+    while True:
+        start = text.find("{", idx)
+        if start == -1:
+            return None
+        try:
+            obj, end = decoder.raw_decode(text, start)
+        except json.JSONDecodeError:
+            idx = start + 1
+            continue
+        if isinstance(obj, dict) and "summary" in obj:
+            return obj
+        idx = end
 
 
 def get_mr_versions(mr_iid: str) -> dict:
@@ -105,18 +101,23 @@ def post_inline_comment(mr_iid: str, version: dict, comment: dict) -> bool:
     return True
 
 
-def post_summary(mr_iid: str, summary: str, stats: dict) -> None:
-    """Post the overall summary as a regular MR note."""
+def post_summary(mr_iid: str, summary: str, stats: dict) -> bool:
+    """Post the overall summary as a regular MR note. Returns False on failure."""
     header = "## AI Code Review"
     stat_line = (f"{stats['critical']} critical, "
                  f"{stats['warning']} warnings, "
                  f"{stats['suggestion']} suggestions")
     body = f"{header}\n\n{summary}\n\n**Inline comments:** {stat_line}"
 
-    subprocess.run(
+    result = subprocess.run(
         ["glab", "mr", "note", str(mr_iid), "-m", body],
-        check=True,
+        capture_output=True, text=True,
     )
+    if result.returncode != 0:
+        print(f"Warning: failed to post summary note: {result.stderr.strip()}",
+              file=sys.stderr)
+        return False
+    return True
 
 
 def print_dry_run(summary: str, comments: list) -> None:
@@ -138,7 +139,7 @@ def print_dry_run(summary: str, comments: list) -> None:
     print("=" * 60)
     for c in comments:
         severity = c.get("severity", "suggestion")
-        stats[severity] = stats.get(severity, 0) + 1
+        stats[severity if severity in stats else "suggestion"] += 1
         emoji = SEVERITY_EMOJI.get(severity, "")
         print(f"\n{emoji} [{severity.upper()}] {c['file']}:{c['line']}")
         print(f"  {c['body']}")
@@ -169,6 +170,17 @@ def main() -> None:
     comments = review.get("comments", [])
     summary = review.get("summary", "No summary provided.")
 
+    # Drop malformed comments up front so a single bad entry can't raise a
+    # KeyError mid-loop, after some comments were already posted.
+    valid = []
+    for c in comments:
+        if isinstance(c, dict) and all(k in c for k in ("file", "line", "body")):
+            valid.append(c)
+        else:
+            print(f"  Skipping malformed comment (needs file/line/body): {str(c)[:80]}",
+                  file=sys.stderr)
+    comments = valid
+
     if dry_run:
         print_dry_run(summary, comments)
         return
@@ -188,7 +200,7 @@ def main() -> None:
     posted = 0
     for c in comments:
         severity = c.get("severity", "suggestion")
-        stats[severity] = stats.get(severity, 0) + 1
+        stats[severity if severity in stats else "suggestion"] += 1
         print(f"  Posting [{severity}] {c['file']}:{c['line']} ...", end=" ")
         if post_inline_comment(mr_iid, version, c):
             print("OK")
