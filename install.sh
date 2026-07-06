@@ -28,11 +28,14 @@ echo "Installing skills..."
 SKILLS_DIR="$CLAUDE_DIR/skills"
 mkdir -p "$SKILLS_DIR"
 
+shopt -s nullglob
 for skill_dir in "$SCRIPT_DIR"/skills/*/; do
     skill_name="$(basename "$skill_dir")"
     target="$SKILLS_DIR/$skill_name"
-    if [ "$FORCE" = true ] && { [ -L "$target" ] || [ -d "$target" ]; }; then
-        rm -rf "$target"
+    # Only ever remove a symlink we manage — never a real directory the user
+    # may have created directly in ~/.claude/skills/.
+    if [ "$FORCE" = true ] && [ -L "$target" ]; then
+        rm -f "$target"
     fi
     if [ -L "$target" ] || [ -d "$target" ]; then
         skip "skills/$skill_name"
@@ -41,6 +44,21 @@ for skill_dir in "$SCRIPT_DIR"/skills/*/; do
         ok "skills/$skill_name"
     fi
 done
+
+# Prune dead symlinks from skills renamed/removed in this repo (they point into
+# our skills/ dir but the source is gone — e.g. an old mail-archive → comms-archive).
+for link in "$SKILLS_DIR"/*; do
+    [ -L "$link" ] || continue
+    case "$(readlink "$link")" in
+        "$SCRIPT_DIR"/skills/*)
+            if [ ! -e "$link" ]; then
+                rm -f "$link"
+                ok "pruned dead link: skills/$(basename "$link")"
+            fi
+            ;;
+    esac
+done
+shopt -u nullglob
 
 # -- Install shell alias ----------------------------------------------
 echo ""
@@ -55,10 +73,13 @@ fi
 
 ALIAS_LINE="alias review='$SCRIPT_DIR/tools/ai-mr-review/review.sh'"
 
-if grep -qF "alias review=" "$RC_FILE" 2>/dev/null; then
+if grep -qF "# dotclaude — AI MR review" "$RC_FILE" 2>/dev/null; then
     if [ "$FORCE" = true ]; then
-        # Remove old alias block and re-add
-        sed -i '' '/# dotclaude — AI MR review/d; /alias review=/d' "$RC_FILE"
+        # Remove our managed block (marker + the alias line right after it),
+        # portably (GNU sed rejects the BSD `sed -i ''` form) and without
+        # touching an unrelated `alias review=` the user may have defined.
+        awk '/^# dotclaude — AI MR review$/{skip=1; next} skip{skip=0; next} {print}' \
+            "$RC_FILE" > "$RC_FILE.tmp" && mv "$RC_FILE.tmp" "$RC_FILE"
         echo "" >> "$RC_FILE"
         echo "# dotclaude — AI MR review" >> "$RC_FILE"
         echo "$ALIAS_LINE" >> "$RC_FILE"
@@ -110,7 +131,7 @@ else
 
 # dotclaude
 Skills and tools are installed from: $SCRIPT_DIR
-Use /km-help to see all available knowledge management skills.
+Use /km help to see all available knowledge management skills.
 EOF
     ok "dotclaude section added to CLAUDE.md"
 fi
@@ -119,7 +140,7 @@ fi
 echo ""
 echo "Checking prerequisites..."
 
-for cmd in claude glab python3; do
+for cmd in claude glab python3 jq; do
     if command -v "$cmd" &>/dev/null; then
         ok "$cmd"
     else
