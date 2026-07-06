@@ -9,8 +9,14 @@ dotclaude/
   skills/                # Claude Code skills (SKILL.md files)
     git-workflow/        # Atomic commits with Conventional Commits
     km/                  # Unified knowledge management
+    comms-archive/       # Archive Outlook/Teams into the knowledge base
+    datasheet-to-md/     # PDF datasheet -> clean Markdown for LLMs
+    cv-extract/          # CV PDF -> JSON Resume + portrait photo
+    ris-search/          # Search Austrian legal sources (RIS)
+    session-summarize/   # Summarize Claude Code session transcripts
   tools/                 # Standalone scripts and utilities
     ai-mr-review/        # AI-powered GitLab MR reviews using Claude
+    tmux-claude/         # Launch Claude across repos in tmux windows
 ```
 
 ## Skills
@@ -36,7 +42,15 @@ One skill for all knowledge management. Works in **any Git repo** — just type 
 
 **Cross-repo brains:** Link other knowledge repos as Git submodules. Each brain has its own access permissions — every team member controls who can read their brain. Brains auto-update when queried (if stale >15 min) and every result includes `[brain@commit]` for full traceability.
 
-**Install:**
+### Other skills
+
+- **comms-archive** — archive Outlook emails and Teams messages as a daily digest in the knowledge base (requires the Microsoft 365 MCP connector).
+- **datasheet-to-md** — convert a PDF datasheet into clean, LLM-friendly Markdown with extracted images, then review it for fidelity.
+- **cv-extract** — extract structured data (JSON Resume) and the portrait photo from a CV PDF.
+- **ris-search** — search Austrian legal sources via the RIS (Rechtsinformationssystem).
+- **session-summarize** — summarize a Claude Code session transcript, with token/cost stats.
+
+## Install
 
 ```bash
 # macOS / Linux / WSL
@@ -52,7 +66,7 @@ cd dotclaude
 .\install.ps1
 ```
 
-Both scripts create links from `~/.claude/skills/` to this repo. Use `-f` to reinstall, `--dir=<path>` for a custom config directory:
+Both scripts link `~/.claude/skills/` entries to this repo (symlinks on macOS/Linux, junctions on Windows); use `-f` to reinstall. The bash script additionally registers the `review` alias, adds this repo to `additionalDirectories`, appends a `# dotclaude` section to your global `CLAUDE.md`, and supports `--dir=<path>` for an alternate config directory (`install.ps1` does skill links only):
 
 ```bash
 ./install.sh --dir="$HOME/.claude-work"   # Install to alternate Claude config dir
