@@ -248,10 +248,14 @@ def truncate(s: str, n: int = 200) -> str:
 
 def render_summary(path: Path, stats: dict, full: bool) -> str:
     out: list[str] = []
-    rel = path.relative_to(Path.home()) if str(path).startswith(str(Path.home())) else path
+    home = Path.home()
+    if str(path).startswith(str(home)):
+        file_display = f"~/{path.relative_to(home)}"
+    else:
+        file_display = str(path)
     out.append(f"# Session Summary: `{path.stem}`")
     out.append("")
-    out.append(f"**File:** `~/{rel}`")
+    out.append(f"**File:** `{file_display}`")
     if stats["start"] and stats["end"]:
         dur = stats["end"] - stats["start"]
         out.append(f"**Time:** {stats['start'].astimezone().strftime('%Y-%m-%d %H:%M')} → {stats['end'].astimezone().strftime('%H:%M')} ({dur})")
@@ -356,9 +360,13 @@ def list_sessions(project_filter: str | None, limit: int = 10) -> str:
     out = ["# Recent Sessions", ""]
     out.append("| Date | Project | Session ID | Size |")
     out.append("|------|---------|------------|------|")
+    home_enc = str(Path.home()).replace("/", "-")  # /Users/roman -> -Users-roman
     for mtime, proj, sid, size, _ in rows:
         date = mtime.astimezone().strftime("%Y-%m-%d %H:%M")
-        proj_short = proj.replace("-Users-roman-", "~/").replace("-", "/")
+        if proj.startswith(home_enc):
+            proj_short = "~" + proj[len(home_enc):].replace("-", "/")
+        else:
+            proj_short = proj.replace("-", "/")
         size_str = f"{size/1024:.0f}k" if size < 1_000_000 else f"{size/1_000_000:.1f}M"
         out.append(f"| {date} | `{proj_short}` | `{sid}` | {size_str} |")
     out.append("")
