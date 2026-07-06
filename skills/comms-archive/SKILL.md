@@ -61,9 +61,11 @@ If the user confirms, proceed:
 - Outlook: `outlook_email_search` with `afterDateTime`, `limit: 50`
 - Teams: `chat_message_search` with `query: '*'`, `afterDateTime`, `limit: 50`
 
+If a source returns exactly `limit` (50) results, more likely exist for that window — note the truncation in the summary so a busy day isn't silently under-archived.
+
 ### 4. Deduplicate
 
-Skip messages whose IDs already appear in `processed-ids.json`.
+Skip messages whose IDs already appear in `processed-ids.json`. This file grows unbounded; when writing it back, drop IDs older than ~30 days to keep it small.
 
 ### 5. Filter noise
 
