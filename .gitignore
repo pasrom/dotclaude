@@ -2,3 +2,18 @@
 # Copy from .example and customize for your project.
 tools/ai-mr-review/review_prompt.md
 tools/ai-mr-review/review_prompt_inline.md
+
+# macOS cruft
+.DS_Store
+
+# Machine-local Claude settings (may hold hostnames / one-off permissions)
+.claude/settings.local.json
+
+# Symlink to Anthropic's proprietary docx skill — install-only, not distributed
+skills/docx
+
+# Local knowledge-base placeholder (dotclaude is not itself a knowledge repo)
+brains/
+
+# Private repo list for tmux-claude — copy from repos.txt.example
+tools/tmux-claude/repos.txt
