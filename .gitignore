@@ -6,6 +6,10 @@ tools/ai-mr-review/review_prompt_inline.md
 # macOS cruft
 .DS_Store
 
+# Python bytecode
+__pycache__/
+*.pyc
+
 # Machine-local Claude settings (may hold hostnames / one-off permissions)
 .claude/settings.local.json
 
