@@ -37,7 +37,8 @@ SYMBOL_MAP = {
     0xF053: "Σ", 0xF0B0: "°", 0xF0B1: "±", 0xF0B3: "≥", 0xF0A3: "≤",
     0xF0B4: "×", 0xF0B7: "·", 0xF0E3: "©", 0xF0E2: "®", 0xF028: "(",
     0xF029: ")", 0xF05B: "[", 0xF05D: "]", 0xF03E: ">", 0xF03C: "<",
-    0xF020: " ", 0xF0A4: "/", 0xF03B: ";",
+    0xF020: " ", 0xF0A4: "/", 0xF03B: ";", 0xF0AE: " → ",
+    0xF8E9: "©",  # Symbol extended-PUA sans-serif copyright
 }
 LEADER = 0xF02E  # Symbol '.' used as decorative leader dots
 CYRILLIC_FIX = {"Ө": "θ", "ө": "θ"}  # OCR look-alikes for Greek theta
