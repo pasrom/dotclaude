@@ -1,0 +1,3 @@
+[submodule "skills/kiprim-psu"]
+	path = skills/kiprim-psu
+	url = https://github.com/pasrom/kiprim-psu.git
