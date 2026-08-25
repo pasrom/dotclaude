@@ -139,6 +139,27 @@ EOF
     ok "dotclaude section added to CLAUDE.md"
 fi
 
+# Global rules are separate blocks with their own markers, so a machine that
+# already carries the dotclaude section still receives rules added later. The
+# marker is an HTML comment derived from the file name, not the rule's first
+# line: a heading can be reworded without the block being appended a second
+# time, and it cannot collide with prose that happens to quote it.
+for RULE_FILE in "$SCRIPT_DIR"/global-rules/*.md; do
+    [ -f "$RULE_FILE" ] || continue
+    RULE_NAME="$(basename "$RULE_FILE" .md)"
+    RULE_MARKER="<!-- dotclaude-rule: $RULE_NAME -->"
+    # -x so a line quoting the marker is not a match, -- so a marker starting
+    # with a dash is not read as options (grep would exit 2 and the block would
+    # be appended on every run).
+    if [ -f "$CLAUDE_MD" ] && grep -qxF -- "$RULE_MARKER" "$CLAUDE_MD"; then
+        skip "$RULE_NAME rule in CLAUDE.md"
+    else
+        printf '\n%s\n\n' "$RULE_MARKER" >> "$CLAUDE_MD"
+        cat "$RULE_FILE" >> "$CLAUDE_MD"
+        ok "$RULE_NAME rule added to CLAUDE.md"
+    fi
+done
+
 # -- Check prerequisites ----------------------------------------------
 echo ""
 echo "Checking prerequisites..."
