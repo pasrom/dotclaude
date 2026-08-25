@@ -14,6 +14,7 @@ dotclaude/
     cv-extract/          # CV PDF -> JSON Resume + portrait photo
     ris-search/          # Search Austrian legal sources (RIS)
     session-summarize/   # Summarize Claude Code session transcripts
+  global-rules/          # Instruction blocks appended to ~/.claude/CLAUDE.md
   tools/                 # Standalone scripts and utilities
     ai-mr-review/        # AI-powered GitLab MR reviews using Claude
     tmux-claude/         # Launch Claude across repos in tmux windows

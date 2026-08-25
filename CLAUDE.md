@@ -6,6 +6,7 @@ Personal Claude Code configuration repo — skills, tools, and workflows.
 
 - `skills/` — Claude Code skills (SKILL.md files), symlinked to `~/.claude/skills/` via `install.sh`: git-workflow, the unified `km` knowledge-management skill, comms-archive, datasheet-to-md, cv-extract, ris-search, and session-summarize.
 - `tools/` — Standalone scripts and utilities
+- `global-rules/` — Instruction blocks that `install.sh` appends to the global `~/.claude/CLAUDE.md`, each under an HTML-comment marker derived from its file name. A rule added later reaches a machine set up earlier, none is appended twice, and a heading may be reworded freely. Renaming a file appends the rule again as a new one, and editing a rule's body does not reach installs that already carry it.
 - `install.sh` — Sets up symlinks and shell aliases (`--force` to reinstall)
 
 ## Conventions
