@@ -16,6 +16,7 @@ dotclaude/
     session-summarize/   # Summarize Claude Code session transcripts
     compact-prep/        # Prepare a session to survive context compaction
     repo-publication-audit/  # Prepare a company-internal repo for public release
+    chrome-cdp/          # Drive a logged-in Chrome/Brave tab over the DevTools Protocol
   global-rules/          # Instruction blocks appended to ~/.claude/CLAUDE.md
   tools/                 # Standalone scripts and utilities
     ai-mr-review/        # AI-powered GitLab MR reviews using Claude
@@ -54,6 +55,7 @@ One skill for all knowledge management. Works in **any Git repo** — just type 
 - **session-summarize** — summarize a Claude Code session transcript, with token/cost stats.
 - **compact-prep**: prepare a long session to survive a context compaction or a hard stop. Commit or record uncommitted work, open items into a gitignored scratch backlog, decisions into the durable stores, and a carry-over statement to paste into the next session. Ships an optional PreCompact snapshot hook.
 - **repo-publication-audit**: audit and scrub a repository before, or after, publishing it. Four provenance surfaces, history rewrite with verification, commit identity per remote, and an outside-in pass on the published result.
+- **chrome-cdp**: drive an already-open browser tab over the DevTools Protocol: list tabs, screenshot, accessibility snapshot, evaluate JavaScript, click and type, including in cross-origin iframes. Raw WebSocket, no Puppeteer, one approval prompt per tab.
 
 ## Install
 
