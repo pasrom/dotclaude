@@ -14,6 +14,7 @@ dotclaude/
     cv-extract/          # CV PDF -> JSON Resume + portrait photo
     ris-search/          # Search Austrian legal sources (RIS)
     session-summarize/   # Summarize Claude Code session transcripts
+    repo-publication-audit/  # Prepare a company-internal repo for public release
   global-rules/          # Instruction blocks appended to ~/.claude/CLAUDE.md
   tools/                 # Standalone scripts and utilities
     ai-mr-review/        # AI-powered GitLab MR reviews using Claude
@@ -50,6 +51,7 @@ One skill for all knowledge management. Works in **any Git repo** — just type 
 - **cv-extract** — extract structured data (JSON Resume) and the portrait photo from a CV PDF.
 - **ris-search** — search Austrian legal sources via the RIS (Rechtsinformationssystem).
 - **session-summarize** — summarize a Claude Code session transcript, with token/cost stats.
+- **repo-publication-audit**: audit and scrub a repository before, or after, publishing it. Four provenance surfaces, history rewrite with verification, commit identity per remote, and an outside-in pass on the published result.
 
 ## Install
 
