@@ -1,0 +1,8 @@
+{
+  "name": "dotclaude",
+  "description": "Personal Claude Code skills, useful beyond one machine. 13 skills under skills/: chrome-cdp, comms-archive, compact-prep, cv-extract, datasheet-to-md, delegating-to-claude-accounts, drawio, git-workflow, kiprim-psu, km, repo-publication-audit, ris-search, session-summarize.",
+  "author": {
+    "name": "Roman Passler"
+  },
+  "repository": "https://github.com/pasrom/dotclaude"
+}
