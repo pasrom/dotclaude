@@ -17,8 +17,8 @@ scratch instead of keeping a copy). Safety rules:
   * Slug collisions are a HARD STOP; a non-served target is refused; a peer-brain target is
     refused (correct a foreign brain via a PR against its own repo, never in the parent).
   * A verbatim-block is never --replace'd (change it only via supersede).
-  * The source's own frontmatter is carried forward (type/title/author/tags/...); status, approval
-    and supersede fields are dropped and re-stamped, so a source WITH frontmatter never yields a
+  * The source's own frontmatter is carried forward (type/title/author/tags/...); status, approval,
+    supersede and pending-`contribution` fields are dropped and re-stamped, so a source WITH frontmatter never yields a
     double header. A new doc needs --folder and a type+author (from --flags or the source).
   * author resolves --author > source frontmatter > author_default (schema.local.yaml).
   * --stub-source rewrites an IN-REPO source note into a superseded stub pointing at the promoted
@@ -157,7 +157,7 @@ def _stub_source(src: Path, target_rel: str, prefixes: set[str], src_fm: dict, i
         print(f"stub: source {src_rel} is already {src_fm['status']}; not re-stubbed.")
         return
     stub = {k: v for k, v in src_fm.items()
-            if k not in ("status", "approved_by", "approved_at", "supersedes", "superseded_by", "audience", "review_by")}
+            if k not in ("status", "approved_by", "approved_at", "supersedes", "superseded_by", "audience", "review_by", "contribution")}
     stub.setdefault("type", ident.get("type"))
     stub.setdefault("title", ident.get("title"))
     stub.setdefault("author", ident.get("author"))
@@ -330,7 +330,7 @@ def main() -> int:
         target = ROOT / a.folder / f"{a.slug}.md"
         # carry the source's own frontmatter, dropping provenance that must not survive a promote
         fm = {k: v for k, v in src_fm.items()
-              if k not in ("status", "approved_by", "approved_at", "superseded_by", "supersedes")}
+              if k not in ("status", "approved_by", "approved_at", "superseded_by", "supersedes", "contribution")}
         fm["type"] = doctype
         fm["title"] = title
         fm["timestamp"] = today

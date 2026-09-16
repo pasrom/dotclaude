@@ -197,17 +197,33 @@ wait for explicit OK. Then:
    `gen_index.py` is TARGET code — read it before running (or hand-edit the index instead).
 7. Push and open the PR: `git -C /tmp/km-contrib-<slug> push origin "HEAD:refs/heads/<BR>"` (fork path
    as in `brain fix` if push is denied), then `gh pr create --head "<BR>"`. Return the PR URL, then
-   `rm -rf /tmp/km-contrib-<slug>`. **Leave the source in your brain until the PR merges** — do not stub
-   a not-yet-merged contribution.
+   `rm -rf /tmp/km-contrib-<slug>`.
+8. **Mark the source pending** (in YOUR brain; a marker, NOT a stub — the doc stays complete, its
+   `status` unchanged). Add to its frontmatter
+   ```yaml
+   contribution:
+     pr: "<owner>/<repo>#<N>"
+     target: brains/<name>/<target-folder>/<slug>.md
+     ticket: <KEY>          # only if --ticket was passed
+     status: pending
+   ```
+   and one line directly under the H1:
+   `> **Contribution pending:** under review in [<owner>/<repo>#<N>](<PR-url>) as `<target-folder>/<slug>.md`. Edit it in that PR branch, not here.`
+   Commit in your brain: `docs(<scope>): mark <slug> pending in <owner>/<repo>#<N>`. **Leave the source
+   a full doc until the PR merges** — mark it, never stub a not-yet-merged contribution. The marker is
+   what a later session sees; without it the personal copy gets re-edited and the two brains diverge.
 
 ### `contribute --finish <PR-url>` (after the PR merges)
 
-`gh pr view <PR> --json state,files` must show merged; take the merged path from `.files`. Then
+`gh pr view <PR> --json state,files` must show merged; take the merged path from `.files` (it should
+equal `contribution.target`; if a reviewer renamed the file on the branch, `.files` wins). Then
 `git submodule update --remote brains/<name>` to pin the brain to the merged state, and turn the
-source in your brain into a redirect stub: keep its frontmatter but set `status: superseded` and
-`superseded_by: brains/<name>/<merged-path>` (point at the MERGED content, canonical even if a
-reviewer changed it on the branch), body a one-line pointer. Commit that in your brain (the stub plus
-the bumped submodule pointer). Before the sync `superseded_by` only warns; after, it resolves.
+source in your brain into a redirect stub: drop `contribution:` and the pending banner, set
+`status: superseded` and `superseded_by: brains/<name>/<merged-path>` (point at the MERGED content,
+canonical even if a reviewer changed it on the branch), body a one-line pointer. Commit that in your
+brain (the stub plus the bumped submodule pointer). Before the sync `superseded_by` only warns; after,
+it resolves. Do the same for every source doc the PR carried. If the PR shows `CLOSED` (rejected,
+unmerged), remove `contribution:` and the banner instead — the doc is an ordinary doc of your brain again.
 
 ### Hard rules
 
@@ -216,7 +232,8 @@ the bumped submodule pointer). Before the sync `superseded_by` only warns; after
 - Gate with YOUR km-owned `validate.py`/`km_promote.py` copied into the clone; treat the target's other scripts (`gen_index.py`) as target code (read before running, or hand-edit the index).
 - Run the WHOLE-REPO `validate.py` in the clone before pushing; the per-file promote gate does not catch index-incompleteness.
 - Commit ONLY the doc and its `_index.md` (`git add -- ...`, never `add -A`); never the copied scripts, `schema.base.yaml`, or a terms file.
-- `--author` is your identity; leave the source until merge, then `contribute --finish`.
+- `--author` is your identity; mark the source `contribution: pending` at PR-open, stub it only via `contribute --finish` after merge.
+- A doc carrying `contribution:` has an open PR: edit it in the TARGET's PR branch (step 2, `checkout --detach origin/<BR>`), never re-edit it in the source brain — the personal and team copies must not diverge. Merged → `--finish` stubs it; closed unmerged → remove the marker.
 
 ## Search strategy
 
@@ -242,7 +259,7 @@ All writes follow CONVENTIONS.md for frontmatter, folder placement, and naming. 
 - **Save:** Auto-detect type (note/concept/decision/transcript). Unclear folder → `inbox/`
 - **Decision:** Extract title, context, alternatives, consequences. Use `type: decision`
 - **Transcript:** Extract decisions + action items. Sections: Attendees, Summary, Decisions, Actions, Transcript
-- **Update:** Preserve frontmatter, update `date` field, show diff
+- **Update:** Preserve frontmatter, update `date` field, show diff. A doc with `contribution:` (open contribution PR) is not updated here — route the edit to the target's PR branch (see "Contributing content")
 - **Archive:** Set `status: obsolete` or `superseded` + `superseded_by:` field. Never delete
 
 ### Ripple update (after every save/update)
