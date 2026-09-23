@@ -134,7 +134,6 @@ else
 
 # dotclaude
 Skills and tools are installed from: $SCRIPT_DIR
-Use /km help to see all available knowledge management skills.
 EOF
     ok "dotclaude section added to CLAUDE.md"
 fi
