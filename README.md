@@ -36,6 +36,7 @@ One skill for all knowledge management. Works in **any Git repo** — just type 
 
 ```bash
 /km init                                    # Bootstrap a new knowledge repo
+/km init --team                             # Bootstrap a shared team brain (CI, served bundle, one writer)
 /km What do we know about thermal management?  # Search and summarize
 /km We decided to use LTC6813               # Save content (auto-detects type)
 /km update sensor-fusion: add calibration   # Modify a document
@@ -46,6 +47,8 @@ One skill for all knowledge management. Works in **any Git repo** — just type 
 ```
 
 **Cross-repo brains:** Link other knowledge repos as Git submodules. Each brain has its own access permissions — every team member controls who can read their brain. Brains auto-update when queried (if stale >15 min) and every result includes `[brain@commit]` for full traceability.
+
+**Team brains:** `/km init --team` sets up a shared, served knowledge base for a team: one maintainer merges, the team reads the repo, everyone else contributes by fork PR or promotes from a personal brain. CI validates every PR, keeps each folder's `_index.md` list generated and reachable, builds a per-audience bundle for AI tools, and demotes accepted docs whose review date has lapsed. The scripts and workflows are owned by km and refreshed by `/km upgrade`.
 
 ### Other skills
 
