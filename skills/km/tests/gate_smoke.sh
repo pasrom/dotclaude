@@ -13,7 +13,7 @@ cp "$KM/km_promote.py" "$T/scripts/km_promote.py"
 cp "$KM/schema.base.yaml" "$T/schema.base.yaml"
 printf '[submodule "brains/peer"]\n  path = brains/peer\n  url = x\n' > "$T/.gitmodules"
 printf 'PROJECT-BLUEBIRD\nACME_CORP\n' > "$T/.gate-terms.txt"
-BASE_LOCAL=$'meta: {profile: smoke}\nauthor_default: RPA\ngate:\n  enabled: true\n  forbidden_terms_file: .gate-terms.txt\n  email_allowlist: [ebs-group.io]\n'
+BASE_LOCAL=$'meta: {profile: smoke}\nauthor_default: RPA\ngate:\n  enabled: true\n  forbidden_terms_file: .gate-terms.txt\n  email_allowlist: [example.org]\n'
 printf '%s' "$BASE_LOCAL" > "$T/schema.local.yaml"
 
 pass=0; fail=0
@@ -129,9 +129,9 @@ python3 "$T/scripts/km_promote.py" "xr-noauth" "$XSRC/x.md" --folder bms >/dev/n
 { [ $? -eq 2 ] && [ ! -f "$T/bms/xr-noauth.md" ]; } && ok "cross-repo without --author refused" || no "cross-repo without --author refused"
 
 # X2: cross-repo with --author strips source-repo refs (related/project) and sets --ticket
-python3 "$T/scripts/km_promote.py" "xr-ok" "$XSRC/x.md" --folder bms --author MSO --ticket BES-9 >/dev/null 2>&1
+python3 "$T/scripts/km_promote.py" "xr-ok" "$XSRC/x.md" --folder bms --author MSO --ticket ABC-9 >/dev/null 2>&1
 XF="$T/bms/xr-ok.md"
-{ [ -f "$XF" ] && grep -q '^author: MSO' "$XF" && grep -q '^ticket: BES-9' "$XF" && ! grep -q '^related:' "$XF" && ! grep -q '^project:' "$XF"; } \
+{ [ -f "$XF" ] && grep -q '^author: MSO' "$XF" && grep -q '^ticket: ABC-9' "$XF" && ! grep -q '^related:' "$XF" && ! grep -q '^project:' "$XF"; } \
   && ok "cross-repo strips refs + sets author/ticket" || no "cross-repo strips refs + sets author/ticket"
 
 # X3: cross-repo with a body link into the source repo is refused
