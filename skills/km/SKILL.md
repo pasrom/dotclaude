@@ -202,7 +202,7 @@ wait for explicit OK. Then:
 4. **Terms hand-off.** If the target's `schema.local.yaml` sets `gate.forbidden_terms_file`, that file
    is out of git and the target's maintainer distributes it; put it at the path the target names,
    inside the clone, before promoting. If you cannot get it, STOP — by design, the leak check must not
-   silently disable. (bes-brain configures none today.)
+   silently disable.
 5. Promote the source into the clone (cross-repo mode auto-applies: `--author` from YOUR identity,
    source-repo refs/links stripped or refused):
    ```
