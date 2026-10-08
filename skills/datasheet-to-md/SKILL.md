@@ -15,10 +15,17 @@ If the PDF is in `~/Downloads` and reads fail with `Operation not permitted` / `
 ## 1. Convert
 
 ```bash
-python3 <skill-dir>/convert_datasheet.py <pdf_path> [--name NAME] [--out-dir DIR]
+uv run "<skill-dir>/convert_datasheet.py" "<pdf_path>" [--name NAME] [--out-dir DIR]
 ```
 
-- Requires `pymupdf4llm` (`pip install pymupdf4llm`).
+- `uv run` fetches Python and the pinned `pymupdf4llm` itself (declared at the top of the script):
+  no Python install and no `pip`, on Windows x64, macOS and Linux (Windows on ARM has no wheels).
+  The first run downloads about 150 MB (Python, pymupdf, onnxruntime) and takes a minute or two;
+  later runs start at once. Quote paths: Windows profile paths often contain spaces.
+- Without uv: `pip install pymupdf4llm`, then the same command with `python3` instead of `uv run`
+  (on Windows `python`; there `python3` is often only the Microsoft Store placeholder).
+- Windows, `DLL load failed` on import: the Microsoft Visual C++ 2015-2022 Redistributable (x64) is
+  missing; installing it needs administrator rights, so ask IT.
 - `--name` = output base name (default: sanitized PDF stem). `--out-dir` defaults to the PDF's directory.
 - Writes `<out-dir>/<NAME>.md` and `<out-dir>/<NAME>_media/*.png` (PNG @ 200 DPI, **relative** image paths).
 - Flags: `--dpi N`, `--no-glyph-fix`, `--render-pages 41,77` (see below).
