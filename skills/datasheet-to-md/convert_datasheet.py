@@ -1,4 +1,8 @@
 #!/usr/bin/env python3
+# /// script
+# requires-python = ">=3.10,<3.14"  # onnxruntime (via pymupdf4llm) has no 3.14 wheel for Intel Macs
+# dependencies = ["pymupdf4llm==1.27.2.3"]
+# ///
 """Convert a PDF datasheet into clean, LLM-friendly Markdown.
 
 Pipeline (all generic, no per-part hardcoding):
@@ -11,11 +15,12 @@ Pipeline (all generic, no per-part hardcoding):
      failed to extract, and insert them at the figure caption.
   4. Verify: every image reference resolves; report residual PUA / U+FFFD.
 
-Requires: pymupdf4llm, pymupdf  (pip install pymupdf4llm)
+Requires: pymupdf4llm, pymupdf. `uv run convert_datasheet.py ...` fetches them (the block
+above pins them); without uv: pip install pymupdf4llm, then run it with python3.
 
 Usage:
-  python3 convert_datasheet.py PDF [--name NAME] [--out-dir DIR] [--dpi 200]
-                                   [--no-glyph-fix] [--render-pages 41,77]
+  uv run convert_datasheet.py PDF [--name NAME] [--out-dir DIR] [--dpi 200]
+                                  [--no-glyph-fix] [--render-pages 41,77]
 
 Defaults: NAME = sanitized PDF stem; out-dir = the PDF's directory.
 Writes <out-dir>/<NAME>.md and <out-dir>/<NAME>_media/*.png
@@ -166,7 +171,7 @@ def main():
     try:
         import pymupdf4llm
     except ImportError:
-        sys.exit("ERROR: pymupdf4llm not installed.  pip install pymupdf4llm")
+        sys.exit("ERROR: pymupdf4llm not installed. Run this script with `uv run`, or pip install pymupdf4llm")
 
     pdf = os.path.abspath(args.pdf)
     if not os.path.isfile(pdf):
